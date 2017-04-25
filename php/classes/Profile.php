@@ -344,7 +344,7 @@ class Product implements \JsonSerializable {
 	 * @throws \PDOException when mySQL related errors occur
 	 * @throws \TypeError when variables are not the correct data type
 	 **/
-	public static function getAllproducts(\PDO $pdo) : \SPLFixedArray {
+	public static function getAllProducts(\PDO $pdo) : \SPLFixedArray {
 		// create query template
 		$query = "SELECT productId, productProfileId, productContent, productDate FROM product";
 		$statement = $pdo->prepare($query);
