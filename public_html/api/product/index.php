@@ -54,18 +54,18 @@ try {
 			}
 		} else if(empty($profileId) === false) {
 			$product = Product::getProductByProductProfileId($pdo, $profileId);
-			if($products !== null) {
-				$reply->data = $products;
+			if($product !== null) {
+				$reply->data = $product;
 			}
 		} else if(empty($content) === false) {
-			$products = Product::getProductByProductContent($pdo, $content);
-			if($products !== null) {
-				$reply->data = $products;
+			$product = Product::getProductByProductContent($pdo, $content);
+			if($product !== null) {
+				$reply->data = $product;
 			}
 		} else {
-			$products = Product::getAllProducts($pdo);
-			if($products !== null) {
-				$reply->data = $products;
+			$product = Product::getAllProduct($pdo);
+			if($product !== null) {
+				$reply->data = $product;
 			}
 		}
 	} else if($method === "PUT" || $method === "POST") {
