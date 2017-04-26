@@ -94,7 +94,7 @@ try {
 			// retrieve the product to update
 			$products = Product::getProductByProductId($pdo, $id);
 			if($products === null) {
-				throw(new RuntimeException("Tweet does not exist", 404));
+				throw(new RuntimeException("Product does not exist", 404));
 			}
 
 			// update all attributes
@@ -112,7 +112,7 @@ try {
 			$products->insert($pdo);
 
 			// update reply
-			$reply->message = "Tweet created OK";
+			$reply->message = "Product created OK";
 		}
 
 	} else if($method === "DELETE") {
