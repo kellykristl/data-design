@@ -1,7 +1,7 @@
 <?php
 
-require_once "autoloader.php";
-require_once "/lib/xsrf.php";
+require_once "autoload.php";
+require_once "xsrf.php";
 require_once("/etc/apache2/capstone-mysql/encrypted-config.php");
 
 use Edu\Cnm\kkristl\DataDesign\product;
@@ -70,7 +70,6 @@ try {
 		}
 	} else if($method === "PUT" || $method === "POST") {
 
-		verifyXsrf();
 		$requestContent = file_get_contents("php://input");
 		$requestObject = json_decode($requestContent);
 
@@ -117,7 +116,6 @@ try {
 		}
 
 	} else if($method === "DELETE") {
-		verifyXsrf();
 
 		// retrieve the Product to be deleted
 		$products = Product::getProductByProductId($pdo, $id);
