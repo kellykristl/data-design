@@ -1,378 +1,316 @@
 <?php
-namespace Edu\Cnm\kkristl\DataDesign;
-require_once ("autoload.php");
+namespace Edu\Cnm\DataDesign;
 /**
- * Small cross section of a product favorite message
- *
- * this product can be considered a small example of what services like etsy store when products are favorited using etsy. this can easily be extended to emulate more features of etsy.
- *
- * @author Kelly Kristl <kkristl@cnm.edu>
- * @version
- */
-class Product implements \JsonSerializable {
-	use ValidateDate;
+ * Profile for Data Design
+ * @author kkristl <kkristl@cnm.edu>
+ **/
+class Profile {
 	/**
-	 * id for this product; this is the primary key
-	 * @var int $productId
-	 */
-	private $productId;
-	/**
-	 * id of the profile that sent this product; this is a foreign key
-	 * @var int $productProfileId
-	 */
-	private $productProfileId;
-	/**
-	 * actual textual content of this product
-	 * @var string $productContent
-	 */
-	private $productContent;
-	/**
-	 * date and time this product was swent, in a PHP DateTime object
-	 * @var \DateTime $productDate
-	 */
-	private $productDate;
-	/**
-	 *constructor for this product
-	 *
-	 * @param int|null $newProductId id of this product or null if a new product
-	 * @param int $newproductProfileId id of the Profile that sent this product
-	 * @param string $newProductContent string containing actual product data
-	 * @param \DateTime|string|null $newproductDate date and time product was sent or null if set to current date and time
-	 * @throws \InvalidArgumentException if data types are not valid
-	 * @throws \RangeException if data values are out of bounds (e.g., strings too long, negative integers)
-	 * @throws \TypeError if data types violate type hints
-	 * @throws \Exception if some other exception occurs
-	 * @Documentation https://php.net/manual/en/language.oop5.decon.php
+	 * Id for this Profile; this is the primary key
+	 * @var int $profileId;
 	 **/
-	public function __construct(?int $newProductId, int $newproductProfileId, string $newProductContent, $newproductDate = null) {
+	private $profileId;
+	/**
+	 * Token created for Profile
+	 * @var string $profileActivationToken;
+	 */
+	private $profileActivationToken;
+	/**
+	 * Handle for Profile
+	 * @var string $profileAtHandle;
+	 */
+	private $profileAtHandle;
+	/**
+	 * User email
+	 * @var string $profileEmail;
+	 */
+	private $profileEmail;
+	/**
+	 * @var string $profilePassHash;
+	 */
+	private $profilePassHash;
+	/**
+	 * @var string $profileSaltHash;
+	 */
+	private $profileSaltHash;
+	/** There should be a public function construct here */
+	public function __construct(?int $newProfileId, string $newProfileActivationToken, string $newProfileAtHandle, string $newProfileEmail, string $newProfilePassHash, string $newProfileSaltHash) {
 		try {
-			$this->setProductId($newProductId);
-			$this->setproductProfileId($newproductProfileId);
-			$this->setProductContent($newProductContent);
-			$this->setproductDate($newproductDate);
+			$this->setProfileId($newProfileId);
+			$this->setProfileActivationToken($newProfileActivationToken);
+			$this->setProfileAtHandle($newProfileAtHandle);
+			$this->setProfileEmail($newProfileEmail);
+			$this->setProfilePassHash($newProfilePassHash);
+			$this->setProfileSaltHash($newProfileSaltHash);
 		}
-			//determine what exception type was thrown
-		catch(\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
+		catch (\InvalidArgumentException | \RangeException | \Exception | \TypeError $exception) {
 			$exceptionType = get_class($exception);
 			throw(new $exceptionType($exception->getMessage(), 0, $exception));
 		}
 	}
 	/**
-	 * accessor method for product id
+	 * accessor method for profile id
 	 *
-	 * @return int|null value of product id
-	 **/
-	public function getProductId() : ?int {
-		return($this->productId);
+	 * @return int|null value of profile id
+	 */
+	/**
+	 * @return int|null value
+	 */
+	public function getProfileId() : ?int {
+		return($this->profileId);
 	}
 	/**
-	 * mutator method for product id
-	 *
-	 * @param int|null $newProductId new value of product id
-	 * @throws \RangeException if $newProductId is not positive
-	 * @throws \TypeError if $newProductId is not an integer
-	 **/
-	public function setProductId(?int $newProductId) : void {
-		//if product id is null immediately return it
-		if($newProductId === null) {
-			$this->productId = null;
-			return;
-		}
-		// verify the product id is positive
-		if($newProductId <= 0) {
-			throw(new \RangeException("product id is not positive"));
-		}
-		// convert and store the product id
-		$this->productId = $newProductId;
-	}
-	/**
-	 * accessor method for product profile id
-	 *
-	 * @return int value of product profile id
-	 **/
-	public function getproductProfileId() : int{
-		return($this->productProfileId);
-	}
-	/**
-	 * mutator method for product profile id
-	 *
-	 * @param int $newproductProfileId new value of product profile id
+	 * mutator method for profile id
+	 * @param int|null profile id
 	 * @throws \RangeException if $newProfileId is not positive
 	 * @throws \TypeError if $newProfileId is not an integer
-	 **/
-	public function setproductProfileId(int $newproductProfileId) : void {
-		// verify the profile id is positive
-		if($newproductProfileId <= 0) {
-			throw(new \RangeException("product profile id is not positive"));
-		}
-		// convert and store the profile id
-		$this->productProfileId = $newproductProfileId;
-	}
-	/**
-	 * accessor method for product content
-	 *
-	 * @return string value of product content
-	 **/
-	public function getProductContent() :string {
-		return($this->productContent);
-	}
-	/**
-	 * mutator method for product content
-	 *
-	 * @param string $newProductContent new value of product content
-	 * @throws \InvalidArgumentException if $newProductContent is not a string or insecure
-	 * @throws \RangeException if $newProductContent is > 140 characters
-	 * @throws \TypeError if $newProductContent is not a string
-	 **/
-	public function setProductContent(string $newProductContent) : void {
-		// verify the product content is secure
-		$newProductContent = trim($newProductContent);
-		$newProductContent = filter_var($newProductContent, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
-		if(empty($newProductContent) === true) {
-			throw(new \InvalidArgumentException("product content is empty or insecure"));
-		}
-		// verify the product content will fit in the database
-		if(strlen($newProductContent) > 140) {
-			throw(new \RangeException("product content too large"));
-		}
-		// store the product content
-		$this->productContent = $newProductContent;
-	}
-	/**
-	 * accessor method for product date
-	 *
-	 * @return \DateTime value of product date
-	 **/
-	public function getproductDate() : \DateTime {
-		return($this->productDate);
-	}
-	/**
-	 * mutator method for product date
-	 *
-	 * @param \DateTime|string|null $newproductDate product date as a DateTime object or string (or null to load the current time)
-	 * @throws \InvalidArgumentException if $newproductDate is not a valid object or string
-	 * @throws \RangeException if $newproductDate is a date that does not exist
-	 **/
-	public function setproductDate($newproductDate = null) : void {
-		// base case: if the date is null, use the current date and time
-		if($newproductDate === null) {
-			$this->productDate = new \DateTime();
+	 */
+	public function setProfileId(?int $newProfileId) : void {
+		//if new tweet if is null return it immediately
+		if($newProfileId === null) {
+			$this->profileId = null;
 			return;
 		}
-		// store the like date using the ValidateDate trait
-		try {
-			$newproductDate = self::validateDateTime($newproductDate);
-		} catch(\InvalidArgumentException | \RangeException $exception) {
-			$exceptionType = get_class($exception);
-			throw(new $exceptionType($exception->getMessage(), 0, $exception));
+		// verify the tweet id is positive
+		if($newProfileId <=0) {
+			throw(new \RangeException("profile id is not positive"));
 		}
-		$this->productDate = $newproductDate;
+		// convert the new profile id to a profile id and store it
+		$this->profileId = $newProfileId;
 	}
 	/**
-	 * inserts this product into mySQL
-	 *
-	 * @param \PDO $pdo PDO connection object
-	 * @throws \PDOException when mySQL related errors occur
-	 * @throws \TypeError if $pdo is not a PDO connection object
+	 * accessor method for activation token
+	 * @return int value of activation token
+	 */
+	public function getProfileActivationToken() : string {
+		return ($this->profileActivationToken);
+	}
+	/**
+	 * mutator method for profile activation token
+	 * @param string profile activation token
+	 * @throws \InvalidArgumentException if activation token is empty
+	 * @throws \RangeException if $newProfileActivationToken is not positive
+	 * @throws \TypeError if $newProfileActivationToken is not an integer
+	 */
+	public function setProfileActivationToken(string $newProfileActivationToken) : void {
+		//enforce formatting on activation token
+		$newProfileActivationToken = trim($newProfileActivationToken);
+		$newProfileActivationToken = strtolower($newProfileActivationToken);
+		//enforce content in profile activation token
+		if (empty($newProfileActivationToken) === true) {
+			throw(new \InvalidArgumentException("profile activation token is empty or insecure"));
+		}
+		//enforce hex on profile activation token
+		if (!ctype_xdigit($newProfileActivationToken)) {
+			throw(new \InvalidArgumentException("profile activation token is empty or insecure"));
+		}
+		//enforce string length on profile activation token
+		if (strlen($newProfileActivationToken) !== 32) {
+			throw(new \RangeException("profile activation token must be 32 characters"));
+		}
+		//store the profile activation token
+		$this->profileActivationToken = $newProfileActivationToken;
+	}
+	/**
+	 * accessor method for profile at hondle
+	 * @return string value of profile at handle
 	 **/
-	public function insert(\PDO $pdo) : void {
-		// enforce the productId is null (i.e., don't insert a product that already exists)
-		if($this->productId !== null) {
-			throw(new \PDOException("not a new product"));
-		}
-		// create query template
-		$query = "INSERT INTO product(productProfileId, productContent, productDate) VALUES(:productProfileId, :productContent, :productDate)";
-		$statement = $pdo->prepare($query);
-		// bind the member variables to the place holders in the template
-		$formattedDate = $this->productDate->format("Y-m-d H:i:s");
-		$parameters = ["productProfileId" => $this->productProfileId, "productContent" => $this->productContent, "productDate" => $formattedDate];
-		$statement->execute($parameters);
-		// update the null productId with what mySQL just gave us
-		$this->productId = intval($pdo->lastInsertId());
+	public function getProfileAtHandle() : string {
+		return ($this->profileAtHandle);
 	}
 	/**
-	 * deletes this product from mySQL
+	 * mutator method for profile at handle
+	 * @param $profileAtHandle;
+	 * @throws \InvalidArgumentException if empty or not alphanumeric
+	 * @throws \RangeException if not 32 characters
+	 */
+	public function setProfileAtHandle(string $newProfileAtHandle) : void {
+		//enforce formatting on profile at handle
+		$newProfileAtHandle = trim($newProfileAtHandle);
+		$newProfileAtHandle = strtolower($newProfileAtHandle);
+		//enforce content in profile at handle
+		if (empty($newProfileAtHandle) === true) {
+			throw(new \InvalidArgumentException("profile at handle is empty"));
+		}
+		//enforce alphanumeric string
+		if (!ctype_alnum($newProfileAtHandle)) {
+			throw(new \InvalidArgumentException("profile at handle must contain only alphanumeric characters"));
+		}
+		//enforce max string length on profile at handle
+		if (strlen($newProfileAtHandle) !== 32) {
+			throw(new \RangeException("profile at handle exceeds length limit"));
+		}
+		//store the profile at handle
+		$this->profileAtHandle = $newProfileAtHandle;
+	}
+	/**
+	 * accessor for profile email
+	 * @return string
+	 */
+	public function getProfileEmail() : string {
+		return ($this->profileEmail);
+	}
+	/**
+	 * mutator method for profile email
+	 * @param string $profileEmail
+	 * @throws \InvalidArgumentException if profile email is empty
+	 * @throws \RangeException if profile email is not 32 characters
+	 */
+	public function setProfileEmail(string $newProfileEmail) : void {
+		//enforce content in profile email
+		if (empty($newProfileEmail) === true) {
+			throw(new \InvalidArgumentException("profile email is empty"));
+		}
+		//enforce max string length on profile email
+		if (strlen($newProfileEmail) !== 32) {
+			throw(new \RangeException("profile email exceeds length limit"));
+		}
+		//store the profile email
+		$this->profileEmail = $newProfileEmail;
+	}
+	/**
+	 * accessor for profile password hash
+	 * @return string
+	 */
+	public function getProfilePassHash(): string {
+		return ($this->profilePassHash);
+	}
+	/**
+	 * mutator for profile password hash
+	 * @param string $profilePassHash
+	 * @throws \InvalidArgumentException if string is empty or not hex
+	 * @throws \RangeException if profile password hash is not 128 characters
+	 * @throws \TypeError if profile password hash is not a sting
+	 */
+	public function setProfilePassHash(string $newProfilePassHash) : void {
+		//enforce that the profile password hash is properly formatted
+		$newProfilePassHash = trim($newProfilePassHash);
+		$newProfilePassHash = strtolower($newProfilePassHash);
+		if (empty($newProfilePassHash) === true) {
+			throw (new InvalidArgumentException("profile password hash is empty or insecure"));
+		}
+		//enforce that the hash is hex
+		if (!ctype_xdigit($newProfilePassHash)) {
+			throw(new \InvalidArgumentException("profile hash is empty or insecure"));
+		}
+		//enforce that the hash is exactly 128 characters
+		if (strlen($newProfilePassHash) !== 128) {
+			throw(new \RangeException("profile hash must be 128 characters"));
+		}
+		//store this hash
+		$this->profilePassHash = $newProfilePassHash;
+	}
+	/**
+	 * accessor for profile salt of hash
+	 * @return string
+	 */
+	public function getProfileSaltHash(): string {
+		return ($this->profileSaltHash);
+	}
+	/**
+	 * mutator for profile hash salt
+	 * @param string $profileSaltHash
+	 * @throws \InvalidArgumentException if string is empty or not hex
+	 * @throws \RangeException if profile passeord hash is not 128 characters
+	 * @throws \TypeError if profile password hash is not a sting
+	 */
+	public function setProfileSaltHash(string $newProfileSaltHash) : void {
+		//enforce that the profile hash salt is properly formatted
+		$newProfileSaltHash = trim($newProfileSaltHash);
+		$newProfileSaltHash = strtolower($newProfileSaltHash);
+		if (empty($newProfileSaltHash) === true) {
+			throw(new \InvalidArgumentException("profile hash salt is empty or insecure"));
+		}
+		//enforce that the salt is hex
+		if (!ctype_xdigit($newProfileSaltHash)) {
+			throw(new \InvalidArgumentException("profile hash is empty or insecure"));
+		}
+		//enforce that the salt is exactly 64 characters
+		if (strlen($newProfileSaltHash) !== 64) {
+			throw(new \RangeException("profile salt must be 64 characters"));
+		}
+		//store this salt
+		$this->profileSaltHash = $newProfileSaltHash;
+	}
+	/**
+	 * @param \PDO $pdo connection object
+	 * @throws \PDOException when mySQL related errors occur
+	 * @throws \TypeError of $pdo is not a PDO connection object
 	 *
-	 * @param \PDO $pdo PDO connection object
+	 */
+	public function insert(\PDO $pdo) : void {
+		if($this->profileId === null) {
+			throw(new \PDOException("unable to delete a tweet that does not exist"));
+		}
+		$query = "INSERT INTO profile(profileID, profileActivationToken, profileAtHandle, profileEmail, profilePassHash, profilePassSalt) VALUES (:profileId, :profileActicationToken, :profileAtHandle, :profileEmail, :profilePassHash, :profilePassSalt)";
+		$statement = $pdo->prepare($query);
+		$parameters = ["profileId" => $this->profileId];
+		$statement->execute($parameters);
+	}
+	/**
+	 * deletes this profile from mySQL
+	 *
+	 * @params \PDO $pdo connection object
 	 * @throws \PDOException when mySQL related errors occur
 	 * @throws \TypeError if $pdo is not a PDO connection object
 	 **/
 	public function delete(\PDO $pdo) : void {
-		// enforce the productId is not null (i.e., don't delete a product that hasn't been inserted)
-		if($this->productId === null) {
-			throw(new \PDOException("unable to delete a product that does not exist"));
+		//enforces that profileId is not null
+		if($this->profileId === null) {
+			throw(new \PODException ("unable to update a profile that does not exisit"));
 		}
-		// create query template
-		$query = "DELETE FROM product WHERE productId = :productId";
+		// create query
+		$query = "DELETE FROM profile WHERE profileId = :profileId";
 		$statement = $pdo->prepare($query);
-		// bind the member variables to the place holder in the template
-		$parameters = ["productId" => $this->productId];
+		$parameters = ["profileId" => $this->profileId];
 		$statement->execute($parameters);
 	}
 	/**
-	 * updates this product in mySQL
-	 *
-	 * @param \PDO $pdo PDO connection object
+	 *Updates this profile in mySQL
+	 *@param \PDO $pdo PDO connection style
 	 * @throws \PDOException when mySQL related errors occur
-	 * @throws \TypeError if $pdo is not a PDO connection object
+	 * @throws \TypeError if $pdo is not a pdo connection object
 	 **/
 	public function update(\PDO $pdo) : void {
-		// enforce the productId is not null (i.e., don't update a product that hasn't been inserted)
-		if($this->productId === null) {
-			throw(new \PDOException("unable to update a product that does not exist"));
+		//enforce the profileId is not null
+		if($this->profileId === null) {
+			throw(new \PDOException("unable to update a profile that does not exist"));
 		}
-		// create query template
-		$query = "UPDATE product SET productProfileId = :productProfileId, productContent = :productContent, productDate = :productDate WHERE productId = :productId";
+		$query = "UPDATE profile SET profileAtHandle = :profileAtHandle, profileEmail = :profileEmail";
 		$statement = $pdo->prepare($query);
-		// bind the member variables to the place holders in the template
-		$formattedDate = $this->productDate->format("Y-m-d H:i:s");
-		$parameters = ["productProfileId" => $this->productProfileId, "productContent" => $this->productContent, "productDate" => $formattedDate, "productId" => $this->productId];
+		$parameters = ["profileAtHandle" => $this->profileAtHandle, "profileEmail" => $this->profileEmail];
 		$statement->execute($parameters);
 	}
 	/**
-	 * gets the product by content
-	 *
+	 * gets profile by profile id
 	 * @param \PDO $pdo PDO connection object
-	 * @param string $productContent product content to search for
-	 * @return \SplFixedArray SplFixedArray of products found
+	 * @param int $profileId profile id to search for
+	 * @return $profile\null profile found or not foudn
 	 * @throws \PDOException when mySQL related errors occur
 	 * @throws \TypeError when variables are not the correct data type
 	 **/
-	public static function getProductByProductContent(\PDO $pdo, string $productContent) {
-		// sanitize the description before searching
-		$productContent = trim($productContent);
-		$productContent = filter_var($productContent, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
-		if(empty($productContent) === true) {
-			throw(new \PDOException("product content is invalid"));
+	public static function getProfileByProfileId(\PDO $pdo, int $profileId) : ?Profile {
+		// sanitize this profile id
+		if($profileId <= 0) {
+			throw(new \PDOException("profile id is not positive"));
 		}
-		// create query template
-		$query = "SELECT productId, productProfileId, productContent, productDate FROM product WHERE productContent LIKE :productContent";
+		// create query
+		$query = "SELECT profileId, profileAtHandle, profileEmail FROM profile WHERE profileID = :profileId";
 		$statement = $pdo->prepare($query);
-		// bind the product content to the place holder in the template
-		$productContent = "%$productContent%";
-		$parameters = ["productContent" => $productContent];
+		$parameters = ["profileId" => $profileId];
 		$statement->execute($parameters);
-		// build an array of products
-		$products = new \SplFixedArray($statement->rowCount());
-		$statement->setFetchMode(\PDO::FETCH_ASSOC);
-		while(($row = $statement->fetch()) !== false) {
-			try {
-				$product = new product($row["productId"], $row["productProfileId"], $row["productContent"], $row["productDate"]);
-				$products[$products->key()] = $product;
-				$products->next();
-			} catch(\Exception $exception) {
-				// if the row couldn't be converted, rethrow it
-				throw(new \PDOException($exception->getMessage(), 0, $exception));
-			}
-		}
-		return($products);
-	}
-	/**
-	 * gets the product by productId
-	 *
-	 * @param \PDO $pdo PDO connection object
-	 * @param int $productId product id to search for
-	 * @return product|null product found or null if not found
-	 * @throws \PDOException when mySQL related errors occur
-	 * @throws \TypeError when variables are not the correct data type
-	 **/
-	public static function getProductByProductId(\PDO $pdo, int $productId) : ?product {
-		// sanitize the productId before searching
-		if($productId <= 0) {
-			throw(new \PDOException("product id is not positive"));
-		}
-		// create query template
-		$query = "SELECT productId, productProfileId, productContent, productDate FROM product WHERE productId = :productId";
-		$statement = $pdo->prepare($query);
-		// bind the product id to the place holder in the template
-		$parameters = ["productId" => $productId];
-		$statement->execute($parameters);
-		// grab the product from mySQL
+		//fetch profile from mySQL
 		try {
-			$product = null;
+			$profile = null;
 			$statement->setFetchMode(\PDO::FETCH_ASSOC);
 			$row = $statement->fetch();
 			if($row !== false) {
-				$product = new product($row["productId"], $row["productProfileId"], $row["productContent"], $row["productDate"]);
+				$tweet = new Profile($row ["profileId"], $row["profileAtHandle"], $row["profileEmail"]);
 			}
-		} catch(\Exception $exception) {
-			// if the row couldn't be converted, rethrow it
+		} catch (\Exception $exception){
+			// if the row is unable to convert, rethrow
 			throw(new \PDOException($exception->getMessage(), 0, $exception));
 		}
-		return($product);
-	}
-	/**
-	 * gets the product by profile id
-	 *
-	 * @param \PDO $pdo PDO connection object
-	 * @param int $productProfileId profile id to search by
-	 * @return \SplFixedArray SplFixedArray of products found
-	 * @throws \PDOException when mySQL related errors occur
-	 * @throws \TypeError when variables are not the correct data type
-	 **/
-	public static function getProductByproductProfileId(\PDO $pdo, int $productProfileId) : \SPLFixedArray {
-		// sanitize the profile id before searching
-		if($productProfileId <= 0) {
-			throw(new \RangeException("product profile id must be positive"));
-		}
-		// create query template
-		$query = "SELECT productId, productProfileId, productContent, productDate FROM product WHERE productProfileId = :productProfileId";
-		$statement = $pdo->prepare($query);
-		// bind the product profile id to the place holder in the template
-		$parameters = ["productProfileId" => $productProfileId];
-		$statement->execute($parameters);
-		// build an array of products
-		$products = new \SplFixedArray($statement->rowCount());
-		$statement->setFetchMode(\PDO::FETCH_ASSOC);
-		while(($row = $statement->fetch()) !== false) {
-			try {
-				$product = new product($row["productId"], $row["productProfileId"], $row["productContent"], $row["productDate"]);
-				$products[$products->key()] = $product;
-				$products->next();
-			} catch(\Exception $exception) {
-				// if the row couldn't be converted, rethrow it
-				throw(new \PDOException($exception->getMessage(), 0, $exception));
-			}
-		}
-		return($products);
-	}
-	/**
-	 * gets all products
-	 *
-	 * @param \PDO $pdo PDO connection object
-	 * @return \SplFixedArray SplFixedArray of products found or null if not found
-	 * @throws \PDOException when mySQL related errors occur
-	 * @throws \TypeError when variables are not the correct data type
-	 **/
-	public static function getAllProducts(\PDO $pdo) : \SPLFixedArray {
-		// create query template
-		$query = "SELECT productId, productProfileId, productContent, productDate FROM product";
-		$statement = $pdo->prepare($query);
-		$statement->execute();
-		// build an array of products
-		$products = new \SplFixedArray($statement->rowCount());
-		$statement->setFetchMode(\PDO::FETCH_ASSOC);
-		while(($row = $statement->fetch()) !== false) {
-			try {
-				$product = new product($row["productId"], $row["productProfileId"], $row["productContent"], $row["productDate"]);
-				$products[$products->key()] = $product;
-				$products->next();
-			} catch(\Exception $exception) {
-				// if the row couldn't be converted, rethrow it
-				throw(new \PDOException($exception->getMessage(), 0, $exception));
-			}
-		}
-		return ($products);
-	}
-	/**
-	 * formats the state variables for JSON serialization
-	 *
-	 * @return array resulting state variables to serialize
-	 **/
-	public function jsonSerialize() {
-		$fields = get_object_vars($this);
-		//format the date so that the front end can consume it
-		$fields["productDate"] = round(floatval($this->productDate->format("U.u")) * 1000);
-		return($fields);
+		return($profile);
 	}
 }
